@@ -11,12 +11,12 @@ class Settings:
     persist_dir: str = os.getenv("PERSIST_DIR", "index")
 
     # Chunking
-    chunk_size: int = int(os.getenv("CHUNK_SIZE", 700))
-    chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", 100))
+    chunk_size: int = int(os.getenv("CHUNK_SIZE", 800))
+    chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", 150))
 
     # Retrieval
     search_type: str = os.getenv("SEARCH_TYPE", "similarity")  # "similarity" | "mmr"
-    k: int = int(os.getenv("RETRIEVER_K", 3))
+    k: int = int(os.getenv("RETRIEVER_K", 5))
     fetch_k: int = int(os.getenv("FETCH_K", 20))
     mmr_lambda: float = float(os.getenv("MMR_LAMBDA", 0.3))
 
