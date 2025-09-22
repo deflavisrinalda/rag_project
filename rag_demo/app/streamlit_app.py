@@ -11,7 +11,7 @@ from rag_demo.rag_core.retriever import make_retriever
 from rag_demo.rag_core.prompts import make_prompt, STRICT_CONTEXT_SYSTEM
 from rag_demo.rag_core.chain import build_rag_chain, rag_answer
 
-# ---------- Cache di componenti lenti ----------
+# ---------- Cache for slow components ----------
 @st.cache_resource(show_spinner=False)
 def _get_embeddings():
     return get_embeddings()
@@ -26,7 +26,7 @@ def _load_docs(_data_dir: str = "data"):
 
 @st.cache_resource(show_spinner=True)
 def _build_pipeline(_data_dir: str = "data"):
-    """Costruisce l'intera pipeline RAG e la cachea"""
+    """Builds the entire RAG pipeline and caches it"""
     emb = get_embeddings()
     llm = get_llm(temperature=0.2, max_tokens=512)
     docs = load_real_documents_from_folder(_data_dir)
@@ -39,21 +39,21 @@ def _build_pipeline(_data_dir: str = "data"):
 # ---------- UI ----------
 st.set_page_config(page_title="RAG Demo", page_icon="🔎", layout="centered")
 
-st.title("🔎 RAG Demo — domanda → risposta con citazioni")
+st.title("🔎 RAG Demo — question → answer with citations")
 
-with st.spinner("Inizializzo il motore..."):
+with st.spinner("Initializing engine..."):
     retriever, chain = _build_pipeline("data")
 
-question = st.text_input("Scrivi la tua domanda", placeholder="Es. Come contattare le RSU in azienda?")
+question = st.text_input("Write your question", placeholder="Ex. How to contact RSU in company?")
 
-if st.button("Chiedi", type="primary", disabled=not bool(question.strip())):
-    with st.spinner("Cerco nei documenti e genero la risposta..."):
+if st.button("Ask", type="primary", disabled=not bool(question.strip())):
+    with st.spinner("Searching documents and generating answer..."):
         answer = rag_answer(question.strip(), chain)
-    st.subheader("Risposta")
+    st.subheader("Answer")
     st.write(answer)
 
-    # (facoltativo) mostra i chunk selezionati — utile per capire il grounding
-    with st.expander("Vedi contesto selezionato (chunk)"):
+    # (optional) show selected chunks — useful to understand grounding
+    with st.expander("See selected context (chunks)"):
         selected_docs = retriever.invoke(question.strip())
         for i, d in enumerate(selected_docs, 1):
             src = d.metadata.get("source", f"doc{i}")

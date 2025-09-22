@@ -6,31 +6,31 @@ from rag_demo.rag_core.splitter import split_documents
 
 def build_faiss_vectorstore(chunks, embeddings):
     """
-    Crea un vector store FAISS a partire dai chunk e lo salva su disco.
-    Ritorna l'istanza FAISS pronta per .as_retriever().
+    Creates a FAISS vector store from chunks and saves it to disk.
+    Returns the FAISS instance ready for .as_retriever().
     """
     vs = FAISS.from_documents(chunks, embedding=embeddings)  # compute & index vectors
     out_dir = Path(SETTINGS.persist_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    vs.save_local(str(out_dir))  # scrive index.faiss + index.pkl
+    vs.save_local(str(out_dir))  # writes index.faiss + index.pkl
     return vs
 
 def load_or_build_vectorstore(embeddings, docs):
     """
-    Se esiste un indice salvato, lo carica; altrimenti fa split+build e salva.
+    If a saved index exists, loads it; otherwise does split+build and saves.
     """
     p = Path(SETTINGS.persist_dir)
     index_file = p / "index.faiss"
     meta_file  = p / "index.pkl"
 
     if index_file.exists() and meta_file.exists():
-        # ATTENZIONE: carica un pickle -> ok solo in ambienti fidati!
+        # WARNING: loads a pickle -> ok only in trusted environments!
         return FAISS.load_local(
             str(p),
             embeddings,
             allow_dangerous_deserialization=True
         )
 
-    # Non esiste: crea i chunk e costruisci l'indice
+    # Doesn't exist: create chunks and build index
     chunks = split_documents(docs)
     return build_faiss_vectorstore(chunks, embeddings)

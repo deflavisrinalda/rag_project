@@ -6,8 +6,8 @@ from langchain.schema import Document
 
 def format_docs_for_prompt(docs: List[Document]) -> str:
     """
-    Concatena i chunk con citazioni in linea: [source:<file>].
-    Mantiene l'ordine del retriever (più rilevanti in alto).
+    Concatenates chunks with inline citations: [source:<file>].
+    Maintains retriever order (most relevant at top).
     """
     parts = []
     for i, d in enumerate(docs, 1):
@@ -22,18 +22,18 @@ def build_rag_chain(llm, retriever, prompt):
     """
     chain = (
         {
-            "question": RunnablePassthrough(),         # passa la domanda com'è
-            "context": retriever | format_docs_for_prompt,  # recupera + formatta
+            "question": RunnablePassthrough(),         # pass question as-is
+            "context": retriever | format_docs_for_prompt,  # retrieve + format
         }
         | prompt  # ChatPromptTemplate
         | llm     # Chat model (Azure)
-        | StrOutputParser()  # restituisce stringa pulita
+        | StrOutputParser()  # return clean string
     )
     return chain
 
 def rag_answer(question: str, chain) -> str:
     """
-    Comoda wrapper per una singola domanda.
+    Convenient wrapper for a single question.
     """
     return chain.invoke(question)
 
@@ -50,7 +50,7 @@ llm = get_llm(temperature=0.0, max_tokens=300)
 docs = load_real_documents_from_folder("data")
 vs = load_or_build_vectorstore(emb, docs)
 retriever = make_retriever(vs)
-prompt = make_prompt()  # strict-context di default
+prompt = make_prompt()  # strict-context by default
 chain = build_rag_chain(llm, retriever, prompt)
 
 print(rag_answer("Come contatto le RSU/RSA?", chain))

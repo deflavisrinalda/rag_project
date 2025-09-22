@@ -14,7 +14,7 @@ from rag_demo.rag_core.prompts import make_prompt, STRICT_CONTEXT_SYSTEM, HELPFU
 from rag_demo.rag_core.chain import build_rag_chain, rag_answer
 
 def preview_docs(docs: List, max_chars: int = 220):
-    print("\n[Contesto selezionato dal retriever]")
+    print("\n[Context selected by retriever]")
     for i, d in enumerate(docs, 1):
         src = d.metadata.get("source", f"doc{i}")
         snippet = d.page_content.replace("\n", " ")[:max_chars]
@@ -22,22 +22,22 @@ def preview_docs(docs: List, max_chars: int = 220):
     print()
 
 def build_pipeline(args):
-    # Rebuild indice se richiesto
+    # Rebuild index if requested
     if args.rebuild:
         p = Path(SETTINGS.persist_dir)
         if p.exists():
             shutil.rmtree(p)
-            print(f"[INFO] Rimossa cartella indice: {p}")
+            print(f"[INFO] Removed index folder: {p}")
 
-    # Carica componenti
+    # Load components
     embeddings = get_embeddings()
     llm = get_llm(temperature=args.temp, max_tokens=args.max_tokens)
 
-    # Documenti + indice
+    # Documents + index
     docs = load_real_documents_from_folder(args.data_dir)
     vs = load_or_build_vectorstore(embeddings, docs)
 
-    # Override runtime dei parametri retriever
+    # Runtime override of retriever parameters
     use_mmr = args.mmr or (SETTINGS.search_type.lower() == "mmr")
     if args.k is not None:
         SETTINGS.k = args.k
@@ -53,23 +53,23 @@ def build_pipeline(args):
     system = STRICT_CONTEXT_SYSTEM if args.policy == "strict" else HELPFUL_BUT_CAUTIOUS_SYSTEM
     prompt = make_prompt(system)
 
-    # Chain completa
+    # Complete chain
     chain = build_rag_chain(llm, retriever, prompt)
     return retriever, chain
 
 def main():
     parser = argparse.ArgumentParser(
-        description="RAG demo (CLI): fai domande da terminale, mostra i chunk e risponde con citazioni."
+        description="RAG demo (CLI): ask questions from terminal, show chunks and respond with citations."
     )
-    parser.add_argument("--data-dir", default="data", help="Cartella con i .md/.txt (default: data)")
-    parser.add_argument("--rebuild", action="store_true", help="Cancella l'indice e ricostruisce da zero")
-    parser.add_argument("--k", type=int, default=None, help="Override del K del retriever (default: da SETTINGS)")
-    parser.add_argument("--mmr", action="store_true", help="Usa MMR invece di similarity")
-    parser.add_argument("--lambda", dest="mmr_lambda", type=float, default=None, help="MMR lambda (0=diversità, 1=pertinenza)")
-    parser.add_argument("--fetch-k", type=int, default=None, help="MMR fetch_k (candidati iniziali)")
+    parser.add_argument("--data-dir", default="data", help="Folder with .md/.txt files (default: data)")
+    parser.add_argument("--rebuild", action="store_true", help="Delete index and rebuild from scratch")
+    parser.add_argument("--k", type=int, default=None, help="Override retriever K (default: from SETTINGS)")
+    parser.add_argument("--mmr", action="store_true", help="Use MMR instead of similarity")
+    parser.add_argument("--lambda", dest="mmr_lambda", type=float, default=None, help="MMR lambda (0=diversity, 1=relevance)")
+    parser.add_argument("--fetch-k", type=int, default=None, help="MMR fetch_k (initial candidates)")
     parser.add_argument("--policy", choices=["strict", "helpful"], default="strict", help="System prompt policy")
-    parser.add_argument("--q", "--question", dest="question", help="Domanda singola da porre (se assente entra in modalità interattiva)")
-    parser.add_argument("--show-context", action="store_true", help="Stampa i chunk selezionati prima della risposta")
+    parser.add_argument("--q", "--question", dest="question", help="Single question to ask (if absent enters interactive mode)")
+    parser.add_argument("--show-context", action="store_true", help="Print selected chunks before answer")
     parser.add_argument("--temp", type=float, default=0.2, help="LLM temperature (default: 0.2)")
     parser.add_argument("--max-tokens", type=int, default=512, help="LLM max tokens (default: 512)")
     args = parser.parse_args()
@@ -85,22 +85,22 @@ def main():
         print("A:", ans)
         print("-" * 80)
 
-    # Modalità 1: domanda passata come flag
+    # Mode 1: question passed as flag
     if args.question:
         ask_once(args.question)
         return
 
-    # Modalità 2: interattiva da terminale
-    print("Modalità interattiva. Scrivi la tua domanda e premi Invio.")
-    print("Comandi: 'exit' per uscire, invio vuoto per uscire.\n")
+    # Mode 2: interactive from terminal
+    print("Interactive mode. Write your question and press Enter.")
+    print("Commands: 'exit' to quit, empty input to quit.\n")
     while True:
         try:
-            q = input("Domanda> ").strip()
+            q = input("Question> ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nUscita.")
+            print("\nExiting.")
             break
         if not q or q.lower() in {"exit", "quit"}:
-            print("Uscita.")
+            print("Exiting.")
             break
         ask_once(q)
 

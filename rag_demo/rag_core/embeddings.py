@@ -1,11 +1,11 @@
 # embeddings.py
 from langchain_openai import AzureOpenAIEmbeddings
-from rag_demo.rag_core.config import SETTINGS  # dove hai caricato le env nel dataclass
+from rag_demo.rag_core.config import SETTINGS  # environment variables loaded in dataclass
 
 def get_embeddings():
     """
-    Restituisce un'istanza di AzureOpenAIEmbeddings configurata dalle env.
-    Usata sia per indicizzazione (embed_documents) sia per query (embed_query).
+    Returns an AzureOpenAIEmbeddings instance configured from environment variables.
+    Used for both indexing (embed_documents) and query (embed_query).
     """
     return AzureOpenAIEmbeddings(
         model=SETTINGS.az_emb_deployment,

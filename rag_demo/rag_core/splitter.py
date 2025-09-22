@@ -6,20 +6,20 @@ from rag_demo.rag_core.config import SETTINGS
 
 def split_documents(docs: List[Document]) -> List[Document]:
     """
-    Split ricorsivo per caratteri con priorità di separatori.
-    Usa chunk_size e chunk_overlap da SETTINGS.
-    Ritorna una nuova lista di Document (uno per chunk) mantenendo i metadata originali.
+    Recursive character splitting with priority separators.
+    Uses chunk_size and chunk_overlap from SETTINGS.
+    Returns a new list of Documents (one per chunk) preserving original metadata.
     """
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=SETTINGS.chunk_size,
         chunk_overlap=SETTINGS.chunk_overlap,
         separators=[
-            "\n\n",  # paragrafi
-            "\n",    # righe
-            ". ", "? ", "! ",  # frasi
-            "; ", ": ", ", ",  # frasi lunghe con punteggiatura
-            " ",               # parole
-            ""                 # fallback: taglio duro
+            "\n\n",  # paragraphs
+            "\n",    # lines
+            ". ", "? ", "! ",  # sentences
+            "; ", ": ", ", ",  # long sentences with punctuation
+            " ",               # words
+            ""                 # fallback: hard cut
         ],
     )
     return splitter.split_documents(docs)
