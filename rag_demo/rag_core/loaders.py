@@ -42,11 +42,3 @@ def load_real_documents_from_folder(folder_path: str) -> List[Document]:
             f"Estensioni supportate: {sorted(SUPPORTED_EXTS)}"
         )
     return documents
-
-if __name__ == "__main__":
-
-    # prova rapida in REPL o in uno script temporaneo
-    from rag_demo.rag_core.loaders import load_real_documents_from_folder
-    docs = load_real_documents_from_folder("data")
-    print(len(docs), "documenti caricati")
-    print(docs[0].metadata.get("source"), "→", docs[0].page_content[:80], "...")
