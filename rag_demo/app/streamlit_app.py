@@ -39,21 +39,21 @@ def _build_pipeline(_data_dir: str = "data"):
 # ---------- UI ----------
 st.set_page_config(page_title="RAG Demo", page_icon="🔎", layout="centered")
 
-st.title("🔎 RAG Demo — question → answer with citations")
+st.title("🔎 RAG Demo — domanda → risposta con citazioni")
 
-with st.spinner("Initializing engine..."):
+with st.spinner("Inizializzo il motore..."):
     retriever, chain = _build_pipeline("data")
 
-question = st.text_input("Write your question", placeholder="Ex. How to contact RSU in company?")
+question = st.text_input("Scrivi la tua domanda", placeholder="Es. Come contattare le RSU in azienda?")
 
-if st.button("Ask", type="primary", disabled=not bool(question.strip())):
-    with st.spinner("Searching documents and generating answer..."):
+if st.button("Chiedi", type="primary", disabled=not bool(question.strip())):
+    with st.spinner("Cerco nei documenti e genero la risposta..."):
         answer = rag_answer(question.strip(), chain)
-    st.subheader("Answer")
+    st.subheader("Risposta")
     st.write(answer)
 
     # (optional) show selected chunks — useful to understand grounding
-    with st.expander("See selected context (chunks)"):
+    with st.expander("Vedi contesto selezionato (chunk)"):
         selected_docs = retriever.invoke(question.strip())
         for i, d in enumerate(selected_docs, 1):
             src = d.metadata.get("source", f"doc{i}")

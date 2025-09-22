@@ -6,17 +6,6 @@ load_dotenv()
 
 @dataclass
 class Settings:
-    # Persistence
-    # Folder where the vector store saves and reads the index
-    persist_dir: str = os.getenv("PERSIST_DIR", "index")# Persistence
-    # Folder where the vector store saves and reads the indexlasses import dataclass
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-@dataclass
-class Settings:
     # Persistenza
     # Cartella dove il vector store salva e rilegge l’indice
     persist_dir: str = os.getenv("PERSIST_DIR", "index")
